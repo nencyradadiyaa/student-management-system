@@ -1,0 +1,9 @@
+node_modules/
+.env
+*.sqlite
+.vercel/
+test_alasql.js
+test_login.js
+test_dashboard.js
+public/uploads/*
+!public/uploads/.gitkeep

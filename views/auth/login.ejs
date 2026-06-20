@@ -1,0 +1,55 @@
+<%- include('../partials/header') %>
+
+<div class="auth-bg">
+  <div class="glass-card login-card text-center">
+    <div class="mb-4">
+      <div class="d-inline-flex align-items-center justify-content-center text-white rounded-3 mb-3" 
+           style="width: 56px; height: 56px; background-color: var(--accent) !important;">
+        <i class="fa-solid fa-graduation-cap fa-2x"></i>
+      </div>
+      <h3 class="fw-extrabold text-primary mb-1">Portal Login</h3>
+      <p class="text-secondary small">Sign in to manage student registries</p>
+    </div>
+
+    <% if (error) { %>
+      <div class="alert alert-danger border-0 text-start py-2 px-3 small" role="alert">
+        <i class="fa-solid fa-circle-exclamation me-2"></i><%= error %>
+      </div>
+    <% } %>
+
+    <form action="/auth/login" method="POST">
+      <div class="mb-3 text-start">
+        <label for="username" class="form-label small fw-semibold text-secondary">Username</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light text-muted border-end-0" style="background-color: var(--bg-primary) !important; border-color: var(--border-color) !important;">
+            <i class="fa-regular fa-user"></i>
+          </span>
+          <input type="text" class="form-control border-start-0 ps-0" id="username" name="username" 
+                 placeholder="e.g. admin" required autocomplete="username">
+        </div>
+      </div>
+      
+      <div class="mb-4 text-start">
+        <label for="password" class="form-label small fw-semibold text-secondary">Password</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light text-muted border-end-0" style="background-color: var(--bg-primary) !important; border-color: var(--border-color) !important;">
+            <i class="fa-solid fa-lock"></i>
+          </span>
+          <input type="password" class="form-control border-start-0 ps-0" id="password" name="password" 
+                 placeholder="••••••••" required autocomplete="current-password">
+        </div>
+      </div>
+      
+      <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2">
+        <span>Authenticate</span>
+        <i class="fa-solid fa-chevron-right small"></i>
+      </button>
+    </form>
+    
+    <div class="mt-4 pt-2 text-center text-muted" style="font-size: 0.75rem;">
+      <span>Default Seed Credentials: <code>admin</code> / <code>admin123</code></span>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

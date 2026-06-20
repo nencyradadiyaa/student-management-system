@@ -1,0 +1,29 @@
+<nav class="app-navbar d-flex align-items-center justify-content-between">
+  <div class="d-flex align-items-center gap-3">
+    <button class="sidebar-toggler" id="sidebarToggler" type="button" aria-label="Toggle Sidebar">
+      <i class="fa-solid fa-bars-staggered"></i>
+    </button>
+    <h4 class="mb-0 fw-bold text-primary" style="font-size: 1.25rem;"><%= title %></h4>
+  </div>
+  
+  <div class="d-flex align-items-center gap-3">
+    <!-- Light / Dark Theme Switcher -->
+    <button class="theme-toggle-btn" id="themeToggleBtn" type="button" title="Toggle Theme">
+      <i class="fa-regular fa-moon"></i>
+    </button>
+    
+    <!-- Admin Account Card -->
+    <% if (locals.admin) { %>
+      <div class="d-flex align-items-center gap-2 border-start ps-3" style="border-color: var(--border-color) !important;">
+        <div class="d-flex flex-column text-end d-none d-md-flex">
+          <span class="fw-semibold text-primary" style="font-size: 0.9rem; line-height: 1.2;"><%= admin.fullName %></span>
+          <span class="text-muted" style="font-size: 0.75rem;">Administrator</span>
+        </div>
+        <div class="d-flex align-items-center justify-content-center text-white rounded-circle" 
+             style="width: 36px; height: 36px; background-color: var(--accent) !important; font-size: 0.95rem; font-weight: 600;">
+          <%= admin.fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</nav>

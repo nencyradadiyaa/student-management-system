@@ -1,0 +1,154 @@
+<%- include('../partials/header') %>
+
+<div class="app-container">
+  <!-- Sidebar -->
+  <%- include('../partials/sidebar') %>
+
+  <div class="app-content">
+    <!-- Navbar -->
+    <%- include('../partials/navbar') %>
+
+    <div class="content-body">
+      
+      <!-- Back Link -->
+      <div class="mb-4">
+        <a href="/students" class="text-decoration-none text-secondary d-inline-flex align-items-center gap-1">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Back to Students List</span>
+        </a>
+      </div>
+
+      <!-- Form Card -->
+      <div class="row">
+        <div class="col-12 col-xl-10 mx-auto">
+          <div class="glass-card p-4">
+            
+            <div class="mb-4 border-bottom pb-3">
+              <h5 class="fw-bold text-primary mb-1">Add New Student Profile</h5>
+              <p class="text-secondary small mb-0">Record personal, academic, and contact information for enrollment registration.</p>
+            </div>
+
+            <!-- Errors Display -->
+            <% if (errors && errors.length > 0) { %>
+              <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+                <h6 class="fw-bold mb-2"><i class="fa-solid fa-circle-exclamation me-2"></i>Please resolve the following errors:</h6>
+                <ul class="mb-0 small ps-3">
+                  <% errors.forEach(err => { %>
+                    <li><%= err %></li>
+                  <% }) %>
+                </ul>
+              </div>
+            <% } %>
+
+            <!-- Creation Form -->
+            <form action="/students/create" method="POST" enctype="multipart/form-data">
+              
+              <!-- Section 1: Academic Identity -->
+              <h6 class="text-primary fw-bold mb-3"><i class="fa-solid fa-address-card me-2"></i>Academic Credentials</h6>
+              <div class="row g-3 mb-4">
+                <!-- Enrollment Number -->
+                <div class="col-12 col-md-6">
+                  <label for="enrollment_number" class="form-label small text-secondary fw-semibold">Enrollment Number <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="enrollment_number" name="enrollment_number" 
+                         value="<%= formData.enrollment_number || '' %>" placeholder="e.g. ENR2026099" required>
+                </div>
+                
+                <!-- Department -->
+                <div class="col-12 col-sm-6 col-md-3">
+                  <label for="department_id" class="form-label small text-secondary fw-semibold">Department</label>
+                  <select class="form-select" id="department_id" name="department_id">
+                    <option value="">Select Department</option>
+                    <% departments.forEach(dept => { %>
+                      <option value="<%= dept.id %>" <%= formData.department_id == dept.id ? 'selected' : '' %>><%= dept.name %> (<%= dept.code %>)</option>
+                    <% }) %>
+                  </select>
+                </div>
+
+                <!-- Semester -->
+                <div class="col-12 col-sm-6 col-md-3">
+                  <label for="semester" class="form-label small text-secondary fw-semibold">Semester</label>
+                  <select class="form-select" id="semester" name="semester">
+                    <% for(let i = 1; i <= 8; i++) { %>
+                      <option value="<%= i %>" <%= formData.semester == i ? 'selected' : '' %>>Semester <%= i %></option>
+                    <% } %>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Section 2: Personal Details -->
+              <h6 class="text-primary fw-bold mb-3"><i class="fa-solid fa-user me-2"></i>Personal Details</h6>
+              <div class="row g-3 mb-4">
+                <!-- Full Name -->
+                <div class="col-12 col-md-6">
+                  <label for="full_name" class="form-label small text-secondary fw-semibold">Full Name <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="full_name" name="full_name" 
+                         value="<%= formData.full_name || '' %>" placeholder="e.g. John Doe" required>
+                </div>
+
+                <!-- Gender -->
+                <div class="col-6 col-md-3">
+                  <label for="gender" class="form-label small text-secondary fw-semibold">Gender</label>
+                  <select class="form-select" id="gender" name="gender">
+                    <option value="Male" <%= formData.gender === 'Male' ? 'selected' : '' %>>Male</option>
+                    <option value="Female" <%= formData.gender === 'Female' ? 'selected' : '' %>>Female</option>
+                    <option value="Other" <%= formData.gender === 'Other' ? 'selected' : '' %>>Other</option>
+                  </select>
+                </div>
+
+                <!-- Date of Birth -->
+                <div class="col-6 col-md-3">
+                  <label for="dob" class="form-label small text-secondary fw-semibold">Date of Birth</label>
+                  <input type="date" class="form-control" id="dob" name="dob" value="<%= formData.dob || '' %>">
+                </div>
+              </div>
+
+              <!-- Section 3: Contact Details -->
+              <h6 class="text-primary fw-bold mb-3"><i class="fa-solid fa-envelope me-2"></i>Contact Information</h6>
+              <div class="row g-3 mb-4">
+                <!-- Email Address -->
+                <div class="col-12 col-md-6">
+                  <label for="email" class="form-label small text-secondary fw-semibold">Email Address <span class="text-danger">*</span></label>
+                  <input type="email" class="form-control" id="email" name="email" 
+                         value="<%= formData.email || '' %>" placeholder="john.doe@email.com" required>
+                </div>
+
+                <!-- Phone Number -->
+                <div class="col-12 col-md-6">
+                  <label for="phone" class="form-label small text-secondary fw-semibold">Phone Number</label>
+                  <input type="tel" class="form-control" id="phone" name="phone" 
+                         value="<%= formData.phone || '' %>" placeholder="9876543210">
+                </div>
+
+                <!-- Address -->
+                <div class="col-12">
+                  <label for="address" class="form-label small text-secondary fw-semibold">Residential Address</label>
+                  <textarea class="form-control" id="address" name="address" rows="3" placeholder="Enter complete home address..."><%= formData.address || '' %></textarea>
+                </div>
+              </div>
+
+              <!-- Section 4: Picture Upload -->
+              <h6 class="text-primary fw-bold mb-3"><i class="fa-solid fa-image me-2"></i>Profile Picture</h6>
+              <div class="row g-3 mb-4">
+                <div class="col-12 col-md-8">
+                  <label for="profile_pic" class="form-label small text-secondary fw-semibold">Upload Photo</label>
+                  <input class="form-control" type="file" id="profile_pic" name="profile_pic" accept="image/jpeg,image/png,image/webp">
+                  <div class="form-text small text-muted">Supports JPEG, PNG, or WEBP. Max size 2MB.</div>
+                </div>
+              </div>
+
+              <!-- Submit Panel -->
+              <div class="mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
+                <a href="/students" class="btn btn-light border px-4">Cancel</a>
+                <button type="submit" class="btn btn-primary px-4 shadow-sm">Save Student</button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

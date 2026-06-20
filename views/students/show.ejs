@@ -1,0 +1,253 @@
+<%- include('../partials/header') %>
+
+<div class="app-container">
+  <!-- Sidebar -->
+  <%- include('../partials/sidebar') %>
+
+  <div class="app-content">
+    <!-- Navbar -->
+    <%- include('../partials/navbar') %>
+
+    <div class="content-body">
+      
+      <!-- Back Link and Printing Toolbar -->
+      <div class="d-flex align-items-center justify-content-between mb-4 no-print">
+        <div>
+          <a href="/students" class="text-decoration-none text-secondary d-inline-flex align-items-center gap-1">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Back to Students List</span>
+          </a>
+        </div>
+        
+        <div class="d-flex gap-2">
+          <!-- Print Layout Trigger -->
+          <button onclick="window.print()" class="btn btn-light border d-flex align-items-center gap-2">
+            <i class="fa-solid fa-print"></i>
+            <span>Print Report</span>
+          </button>
+          
+          <!-- PDF Download Trigger -->
+          <a href="/exports/pdf/<%= student.id %>" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span>Download PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Profile Dashboard Grid -->
+      <div class="row g-4">
+        
+        <!-- Left Column: Quick Profile Summary Card -->
+        <div class="col-12 col-lg-4">
+          <div class="glass-card text-center p-4 h-100">
+            <div class="mb-3">
+              <% if (student.profile_pic) { %>
+                <img src="/uploads/<%= student.profile_pic %>" class="profile-avatar-lg border shadow-sm" alt="<%= student.full_name %>">
+              <% } else { %>
+                <div class="d-inline-flex align-items-center justify-content-center text-white rounded-4 border shadow-sm" 
+                     style="width: 130px; height: 130px; background-color: var(--accent); font-size: 3rem; font-weight: 700;">
+                  <%= student.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) %>
+                </div>
+              <% } %>
+            </div>
+
+            <h4 class="fw-bold text-primary mb-1"><%= student.full_name %></h4>
+            <span class="badge bg-light text-secondary border mb-3" style="font-size: 0.9rem;"><%= student.enrollment_number %></span>
+            
+            <div class="text-start border-top pt-3 mt-2">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small">Department:</span>
+                <span class="fw-semibold small"><%= student.department_name || 'N/A' %></span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small">Semester:</span>
+                <span class="fw-semibold small">Semester <%= student.semester %></span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small">Gender:</span>
+                <span class="fw-semibold small"><%= student.gender %></span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span class="text-muted small">Status:</span>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0">Enrolled</span>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top d-flex gap-2 justify-content-center no-print">
+              <a href="/students/edit/<%= student.id %>" class="btn btn-sm btn-outline-warning w-50">
+                <i class="fa-regular fa-edit me-1"></i> Edit Profile
+              </a>
+              <form action="/students/delete/<%= student.id %>" method="POST" class="w-50"
+                    onsubmit="return confirm('Confirm permanently deleting this student record?');">
+                <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                  <i class="fa-regular fa-trash-can me-1"></i> Delete
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Details, Attendance and Grades Cards -->
+        <div class="col-12 col-lg-8">
+          <div class="d-flex flex-column gap-4">
+            
+            <!-- Card 1: Contact and Personal Information -->
+            <div class="glass-card p-4">
+              <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-circle-info me-2"></i>Contact & Personal Details</h5>
+              
+              <div class="row g-3">
+                <div class="col-12 col-sm-6">
+                  <span class="text-muted small d-block">Email Address</span>
+                  <span class="text-primary fw-medium"><%= student.email %></span>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <span class="text-muted small d-block">Phone Number</span>
+                  <span class="text-primary fw-medium"><%= student.phone || 'N/A' %></span>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <span class="text-muted small d-block">Date of Birth</span>
+                  <span class="text-primary fw-medium"><%= student.dob ? new Date(student.dob).toLocaleDateString() : 'N/A' %></span>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <span class="text-muted small d-block">Registered Date</span>
+                  <span class="text-primary fw-medium"><%= student.created_at ? new Date(student.created_at).toLocaleDateString() : 'N/A' %></span>
+                </div>
+                <div class="col-12">
+                  <span class="text-muted small d-block">Residential Address</span>
+                  <span class="text-primary fw-medium"><%= student.address || 'No address registered.' %></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Attendance Tracking History -->
+            <div class="glass-card p-4">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="fw-bold text-primary mb-0"><i class="fa-solid fa-calendar-check me-2"></i>Attendance Report</h5>
+                <span class="badge rounded-pill bg-indigo text-white shadow-sm" style="background-color: var(--accent) !important; font-size: 0.9rem; padding: 0.4rem 0.8rem;">
+                  Overall: <%= attendance.stats.Rate %>%
+                </span>
+              </div>
+
+              <!-- Attendance Metrics Row -->
+              <div class="row g-2 mb-3 text-center">
+                <div class="col-3">
+                  <div class="border rounded p-2 bg-light-subtle">
+                    <span class="text-muted small d-block">Total Logs</span>
+                    <span class="fw-bold text-primary"><%= attendance.stats.Total %></span>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="border rounded p-2 bg-success-subtle border-success-subtle">
+                    <span class="text-muted small d-block">Present</span>
+                    <span class="fw-bold text-success"><%= attendance.stats.Present %></span>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="border rounded p-2 bg-danger-subtle border-danger-subtle">
+                    <span class="text-muted small d-block">Absent</span>
+                    <span class="fw-bold text-danger"><%= attendance.stats.Absent %></span>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="border rounded p-2 bg-warning-subtle border-warning-subtle">
+                    <span class="text-muted small d-block">Late</span>
+                    <span class="fw-bold text-warning-emphasis"><%= attendance.stats.Late %></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recent Attendance Logs Table -->
+              <% if (attendance.history.length === 0) { %>
+                <p class="text-center py-2 text-secondary small mb-0">No attendance logs available for this student.</p>
+              <% } else { %>
+                <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                  <table class="table table-sm custom-table mb-0">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% attendance.history.forEach(log => { %>
+                        <tr>
+                          <td class="small fw-medium"><%= log.date %></td>
+                          <td>
+                            <% if (log.status === 'Present') { %>
+                              <span class="badge bg-success-subtle text-success border border-success-subtle">Present</span>
+                            <% } else if (log.status === 'Absent') { %>
+                              <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Absent</span>
+                            <% } else if (log.status === 'Late') { %>
+                              <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Late</span>
+                            <% } else { %>
+                              <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Excused</span>
+                            <% } %>
+                          </td>
+                          <td class="text-muted small"><%= log.remarks || '-' %></td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+
+            <!-- Card 3: Academic Marks Card -->
+            <div class="glass-card p-4">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="fw-bold text-primary mb-0"><i class="fa-solid fa-file-invoice me-2"></i>Subject Performance</h5>
+                <a href="/marks/student/<%= student.id %>" class="btn btn-sm btn-light border no-print">Manage Grades</a>
+              </div>
+
+              <% if (marks.length === 0) { %>
+                <p class="text-center py-4 text-secondary mb-0">No examination scores recorded yet.</p>
+              <% } else { %>
+                <div class="table-responsive">
+                  <table class="table custom-table mb-0">
+                    <thead>
+                      <tr>
+                        <th>Subject Name</th>
+                        <th class="text-center">Semester</th>
+                        <th class="text-center">Obtained</th>
+                        <th class="text-center">Max Marks</th>
+                        <th class="text-end">Percentage</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% marks.forEach(mark => { %>
+                        <% const pct = ((parseFloat(mark.marks_obtained) / parseFloat(mark.max_marks)) * 100).toFixed(1); %>
+                        <tr>
+                          <td class="fw-medium"><%= mark.subject_name %></td>
+                          <td class="text-center">S<%= mark.semester %></td>
+                          <td class="text-center text-primary fw-semibold"><%= parseFloat(mark.marks_obtained).toFixed(1) %></td>
+                          <td class="text-center text-muted"><%= parseFloat(mark.max_marks).toFixed(1) %></td>
+                          <td class="text-end fw-bold text-secondary"><%= pct %>%</td>
+                        </tr>
+                      <% }) %>
+                      <!-- Totals Summary Row -->
+                      <% if (academics.overallPercentage !== null) { %>
+                        <tr class="table-primary" style="background-color: var(--bg-primary);">
+                          <td class="fw-bold text-primary">Overall Class Performance</td>
+                          <td class="text-center">-</td>
+                          <td class="text-center fw-bold text-primary"><%= academics.totalMarksObtained.toFixed(1) %></td>
+                          <td class="text-center fw-bold text-muted"><%= academics.totalMaxMarks.toFixed(1) %></td>
+                          <td class="text-end fw-bold text-indigo" style="color: var(--accent);"><%= academics.overallPercentage %>%</td>
+                        </tr>
+                      <% } %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

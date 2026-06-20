@@ -1,0 +1,219 @@
+<%- include('../partials/header') %>
+
+<div class="app-container">
+  <!-- Sidebar -->
+  <%- include('../partials/sidebar') %>
+
+  <div class="app-content">
+    <!-- Navbar -->
+    <%- include('../partials/navbar') %>
+
+    <div class="content-body">
+      
+      <!-- Feedback toasts -->
+      <% if (success) { %>
+        <div class="alert alert-success alert-dismiss border-0 shadow-sm d-flex align-items-center py-2 px-3 mb-4" role="alert">
+          <i class="fa-solid fa-circle-check me-2"></i>
+          <div><%= success %></div>
+        </div>
+      <% } %>
+      
+      <% if (error) { %>
+        <div class="alert alert-danger alert-dismiss border-0 shadow-sm d-flex align-items-center py-2 px-3 mb-4" role="alert">
+          <i class="fa-solid fa-circle-exclamation me-2"></i>
+          <div><%= error %></div>
+        </div>
+      <% } %>
+
+      <!-- Filter Selection Header -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="glass-card p-4">
+            <h5 class="fw-bold text-primary mb-3"><i class="fa-regular fa-calendar-check me-2"></i>Select Class & Date</h5>
+            
+            <form action="/attendance" method="GET">
+              <div class="row g-3 align-items-end">
+                
+                <!-- Date Picker -->
+                <div class="col-12 col-sm-6 col-md-3">
+                  <label for="date" class="form-label small text-secondary fw-semibold">Attendance Date</label>
+                  <input type="date" class="form-control" id="date" name="date" value="<%= filters.date %>" required>
+                </div>
+
+                <!-- Department Selector -->
+                <div class="col-6 col-sm-6 col-md-4">
+                  <label for="departmentId" class="form-label small text-secondary fw-semibold">Department</label>
+                  <select class="form-select" id="departmentId" name="departmentId" required>
+                    <option value="">Choose Department...</option>
+                    <% departments.forEach(dept => { %>
+                      <option value="<%= dept.id %>" <%= filters.departmentId == dept.id ? 'selected' : '' %>><%= dept.name %> (<%= dept.code %>)</option>
+                    <% }) %>
+                  </select>
+                </div>
+
+                <!-- Semester Selector -->
+                <div class="col-6 col-sm-6 col-md-3">
+                  <label for="semester" class="form-label small text-secondary fw-semibold">Semester</label>
+                  <select class="form-select" id="semester" name="semester" required>
+                    <option value="">Choose Semester...</option>
+                    <% for(let i = 1; i <= 8; i++) { %>
+                      <option value="<%= i %>" <%= filters.semester == i ? 'selected' : '' %>>Semester <%= i %></option>
+                    <% } %>
+                  </select>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="col-12 col-md-2">
+                  <button type="submit" class="btn btn-primary w-100 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>Load Sheet</span>
+                  </button>
+                </div>
+
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attendance Sheet Roll Call -->
+      <div class="row">
+        <div class="col-12">
+          <div class="glass-card p-4">
+            
+            <% if (!filters.departmentId || !filters.semester) { %>
+              <div class="text-center py-5 text-secondary">
+                <i class="fa-solid fa-users-viewfinder fa-3x mb-3 text-muted"></i>
+                <h5 class="fw-bold">Select parameters above</h5>
+                <p class="small mb-0">Choose department and semester options to load the student list.</p>
+              </div>
+            <% } else if (students.length === 0) { %>
+              <div class="text-center py-5 text-secondary">
+                <i class="fa-regular fa-circle-question fa-3x mb-3 text-muted"></i>
+                <h5 class="fw-bold">No Students Enrolled</h5>
+                <p class="small mb-0">There are no students registered in this department and semester yet.</p>
+              </div>
+            <% } else { %>
+              <!-- Header Details -->
+              <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-4">
+                <div>
+                  <h5 class="fw-bold text-primary mb-1">Mark Attendance Roll Sheet</h5>
+                  <p class="text-secondary small mb-0">
+                    Class: <span class="fw-semibold text-primary"><%= students[0].department_name || 'N/A' %> (Sem <%= filters.semester %>)</span> | Date: <span class="fw-semibold text-primary"><%= filters.date %></span>
+                  </p>
+                </div>
+                
+                <!-- Quick Set Button Helper -->
+                <div>
+                  <button type="button" id="markAllPresent" class="btn btn-sm btn-light border fw-semibold">
+                    <i class="fa-solid fa-check-double text-success me-1"></i> Mark All Present
+                  </button>
+                </div>
+              </div>
+
+              <!-- Sheet Submission Form -->
+              <form action="/attendance/save" method="POST">
+                <input type="hidden" name="date" value="<%= filters.date %>">
+                <input type="hidden" name="departmentId" value="<%= filters.departmentId %>">
+                <input type="hidden" name="semester" value="<%= filters.semester %>">
+
+                <div class="table-responsive">
+                  <table class="table custom-table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Student Details</th>
+                        <th class="text-center" style="width: 350px;">Attendance Status</th>
+                        <th>Remarks / Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% students.forEach(student => { %>
+                        <tr>
+                          <td>
+                            <div class="d-flex align-items-center">
+                              <span class="badge bg-light text-secondary border font-monospace me-3" style="font-size: 0.8rem;"><%= student.enrollment_number %></span>
+                              <span class="fw-semibold text-primary"><%= student.full_name %></span>
+                            </div>
+                          </td>
+                          <td>
+                            <div class="d-flex justify-content-center gap-3">
+                              <!-- Present radio option -->
+                              <div class="form-check form-check-inline mb-0">
+                                <input class="form-check-input check-present" type="radio" 
+                                       name="attendance[<%= student.student_id %>]" 
+                                       id="p-<%= student.student_id %>" value="Present" 
+                                       <%= (!student.status || student.status === 'Present') ? 'checked' : '' %>>
+                                <label class="form-check-label text-success fw-medium small" for="p-<%= student.student_id %>">Present</label>
+                              </div>
+                              
+                              <!-- Absent radio option -->
+                              <div class="form-check form-check-inline mb-0">
+                                <input class="form-check-input check-absent" type="radio" 
+                                       name="attendance[<%= student.student_id %>]" 
+                                       id="a-<%= student.student_id %>" value="Absent" 
+                                       <%= student.status === 'Absent' ? 'checked' : '' %>>
+                                <label class="form-check-label text-danger fw-medium small" for="a-<%= student.student_id %>">Absent</label>
+                              </div>
+
+                              <!-- Late radio option -->
+                              <div class="form-check form-check-inline mb-0">
+                                <input class="form-check-input" type="radio" 
+                                       name="attendance[<%= student.student_id %>]" 
+                                       id="l-<%= student.student_id %>" value="Late" 
+                                       <%= student.status === 'Late' ? 'checked' : '' %>>
+                                <label class="form-check-label text-warning-emphasis fw-medium small" for="l-<%= student.student_id %>">Late</label>
+                              </div>
+
+                              <!-- Excused radio option -->
+                              <div class="form-check form-check-inline mb-0">
+                                <input class="form-check-input" type="radio" 
+                                       name="attendance[<%= student.student_id %>]" 
+                                       id="e-<%= student.student_id %>" value="Excused" 
+                                       <%= student.status === 'Excused' ? 'checked' : '' %>>
+                                <label class="form-check-label text-secondary fw-medium small" for="e-<%= student.student_id %>">Excused</label>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <input type="text" class="form-control form-control-sm" 
+                                   name="remarks[<%= student.student_id %>]" 
+                                   value="<%= student.remarks || '' %>" placeholder="e.g. Late due to bus delay">
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Submit Footer -->
+                <div class="mt-4 pt-3 border-top text-end">
+                  <button type="submit" class="btn btn-primary px-4 shadow-sm">Save Attendance Log</button>
+                </div>
+
+              </form>
+            <% } %>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Client-side helper scripts for quick selections -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const markAllPresentBtn = document.getElementById('markAllPresent');
+    if (markAllPresentBtn) {
+      markAllPresentBtn.addEventListener('click', () => {
+        const presentRadios = document.querySelectorAll('.check-present');
+        presentRadios.forEach(radio => {
+          radio.checked = true;
+        });
+      });
+    }
+  });
+</script>
+
+<%- include('../partials/footer') %>

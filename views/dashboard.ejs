@@ -1,0 +1,183 @@
+<%- include('partials/header') %>
+
+<div class="app-container">
+  <!-- Sidebar Navigation -->
+  <%- include('partials/sidebar') %>
+
+  <!-- Main Content Wrapper -->
+  <div class="app-content">
+    <!-- Navbar Header -->
+    <%- include('partials/navbar') %>
+
+    <!-- Dashboard Core Content -->
+    <div class="content-body">
+      
+      <!-- Welcome Banner -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="glass-card p-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div>
+              <h2 class="fw-bold text-primary mb-1">Welcome back, <%= admin.fullName %>!</h2>
+              <p class="text-secondary mb-0">Here is what is happening across the college registry dashboard today.</p>
+            </div>
+            <div>
+              <a href="/students/create" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Add Student</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Statistics Grid -->
+      <div class="row g-4 mb-4">
+        <!-- Card 1: Total Students -->
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="glass-card stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <span class="text-muted small fw-semibold uppercase">Total Students</span>
+                <h3 class="fw-bold text-primary mt-1 mb-0"><%= totalStudents %></h3>
+              </div>
+              <div class="icon-wrapper text-indigo bg-indigo-subtle" style="background-color: rgba(79, 70, 229, 0.1) !important; color: var(--accent) !important;">
+                <i class="fa-solid fa-graduation-cap"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Attendance Rate -->
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="glass-card stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <span class="text-muted small fw-semibold">Attendance Rate</span>
+                <h3 class="fw-bold text-success mt-1 mb-0"><%= attendanceStats.overallRate %>%</h3>
+              </div>
+              <div class="icon-wrapper text-success bg-success-subtle" style="background-color: rgba(22, 163, 74, 0.1) !important; color: #16a34a !important;">
+                <i class="fa-solid fa-calendar-check"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Avg Grade Percentage -->
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="glass-card stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <span class="text-muted small fw-semibold">Average Grade</span>
+                <h3 class="fw-bold text-warning mt-1 mb-0"><%= averageGrade %>%</h3>
+              </div>
+              <div class="icon-wrapper text-warning bg-warning-subtle" style="background-color: rgba(245, 158, 11, 0.1) !important; color: #d97706 !important;">
+                <i class="fa-solid fa-award"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Departments Count -->
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="glass-card stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <span class="text-muted small fw-semibold">Departments</span>
+                <h3 class="fw-bold text-info mt-1 mb-0"><%= departmentDistribution.length %></h3>
+              </div>
+              <div class="icon-wrapper text-info bg-info-subtle" style="background-color: rgba(6, 182, 212, 0.1) !important; color: #0891b2 !important;">
+                <i class="fa-solid fa-building-columns"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts & Visual Analytics -->
+      <div class="row g-4 mb-4">
+        <!-- Department Distribution Chart -->
+        <div class="col-12 col-lg-8">
+          <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+              <h5 class="fw-bold text-primary mb-0">Department Enrollment</h5>
+              <span class="badge bg-light text-secondary border">Class Counts</span>
+            </div>
+            <div style="height: 280px; position: relative;">
+              <canvas id="deptChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gender Distribution Chart -->
+        <div class="col-12 col-lg-4">
+          <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+              <h5 class="fw-bold text-primary mb-0">Gender Ratio</h5>
+              <span class="badge bg-light text-secondary border">Demographics</span>
+            </div>
+            <div style="height: 280px; position: relative;">
+              <canvas id="genderChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Students Directory Summary -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="glass-card p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h5 class="fw-bold text-primary mb-0">Recently Registered Students</h5>
+              <a href="/students" class="btn btn-sm btn-light border fw-semibold">View All Students</a>
+            </div>
+            
+            <% if (recentStudents.length === 0) { %>
+              <div class="text-center py-4 text-secondary">
+                <i class="fa-solid fa-users fa-2x mb-2 text-muted"></i>
+                <p class="mb-0">No students registered in the database yet.</p>
+              </div>
+            <% } else { %>
+              <div class="table-responsive">
+                <table class="table custom-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Full Name</th>
+                      <th>Enrollment Number</th>
+                      <th>Department</th>
+                      <th>Registered On</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% recentStudents.forEach(student => { %>
+                      <tr>
+                        <td>
+                          <span class="fw-semibold text-primary"><%= student.full_name %></span>
+                        </td>
+                        <td>
+                          <span class="badge bg-light text-secondary border"><%= student.enrollment_number %></span>
+                        </td>
+                        <td><%= student.department_name %></td>
+                        <td class="text-muted small"><%= student.created_at ? student.created_at.split(' ')[0] : 'N/A' %></td>
+                        <td class="text-end">
+                          <a href="/students/show/<%= student.id %>" class="btn btn-sm btn-light border px-3">
+                            <i class="fa-regular fa-eye me-1"></i> View Profile
+                          </a>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Inject the charts scripts indicator variables -->
+<% locals.includeCharts = true %>
+<%- include('partials/footer') %>
