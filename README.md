@@ -178,6 +178,17 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
+## Vercel Serverless Preview (Alasql Fallback)
+
+To support immediate database-free previewing, this project includes a pure-JavaScript in-memory fallback using **Alasql**. If no MySQL connection variables are configured or available, the platform automatically initializes and seeds an in-memory SQL database on the fly.
+
+To make the application fully compatible with Vercel's serverless container scaling:
+* **Stateless Cookie Sessions**: Sessions are encrypted and stored entirely in client-side cookies via `cookie-session` in fallback mode, ensuring active logins persist across different serverless executions.
+* **SQL Query Translators**: An automatic query patcher is integrated into `config/db.js` to translate pagination syntax (`LIMIT`/`OFFSET`) and quotes around reserved SQL words (`as count`, `as total`) to make standard MySQL queries parse correctly in Alasql.
+* **Route Mapping**: Configured with `vercel.json` to handle all application requests using the serverless Node.js entry point.
+
+---
+
 ## Production Deployment Instructions
 
 ### 1. Database Hosting (Railway, Aiven, or Supabase)
